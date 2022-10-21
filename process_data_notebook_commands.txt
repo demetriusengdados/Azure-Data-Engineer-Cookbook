@@ -1,0 +1,27 @@
+val covid_raw_data = spark.read.format("csv")
+.option("header", "true")
+.option("inferSchema", "true")
+.load("/FileStore/shared_uploads/arr.nagaraj@gmail.com/covid_data.csv")
+
+display(covid_raw_data)
+
+covid_raw_data.count()
+
+val covid_remove_duplicates = covid_raw_data.dropDuplicates()
+
+covid_remove_duplicates.printSchema()
+
+val covid_selected_columns = covid_remove_duplicates.select("iso_code","location","continent","date","new_deaths_per_million","people_fully_vaccinated","population")
+
+val covid_clean_data = covid_selected_columns.na.drop()
+covid_clean_data.count()
+
+covid_clean_data.createOrReplaceTempView("covid_view")
+
+%sql
+Select SELECT iso_code, location , continent,
+SUM(new_deaths_per_million) as death_sum,
+MAX(people_fully_vaccinated * 100 / population) as percentage_vaccinated From FROM covid_view 
+ WHERE population > 1000000
+group GROUP BY iso_code,location,continent
+order ORDER BY death_sum desc

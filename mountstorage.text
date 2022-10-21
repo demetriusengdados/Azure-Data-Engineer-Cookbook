@@ -1,0 +1,15 @@
+val appsecret = dbutils.secrets.get(scope="datalakekey",key="appsecret")
+val ApplicationID = dbutils.secrets.get(scope="datalakekey",key="ApplicationID")
+val DirectoryID = dbutils.secrets.get(scope="datalakekey",key="DirectoryID")
+val endpoint = "https://login.microsoftonline.com/" + DirectoryID + "/oauth2/token"
+val configs = Map(
+  "fs.azure.account.auth.type" -> "OAuth",
+  "fs.azure.account.oauth.provider.type" -> "org.apache.hadoop.fs.azurebfs.oauth2.ClientCredsTokenProvider",
+  "fs.azure.account.oauth2.client.id" -> ApplicationID,
+  "fs.azure.account.oauth2.client.secret" -> appsecret,
+  "fs.azure.account.oauth2.client.endpoint" -> endpoint)
+// Optionally, you can add <directory-name> to the source URI of your mount point.
+dbutils.fs.mount(
+  source = "abfss://databricks@packtadestoragev2.dfs.core.windows.net/",
+  mountPoint = "/mnt/datalakestorage",
+  extraConfigs = configs)

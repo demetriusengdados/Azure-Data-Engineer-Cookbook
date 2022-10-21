@@ -1,0 +1,30 @@
+CREATE DATABASE covid
+
+CREATE TEMPORARY VIEW covid_data
+USING CSV
+OPTIONS (path "/FileStore/shared_uploads/arr.nagaraj@gmail.com/covid_data.csv", header "true", mode "FAILFAST")
+
+CREATE OR REPLACE TABLE covid.covid_data_detla
+USING DELTA
+LOCATION '/FileStore/shared_uploads/arr.nagaraj@gmail.com/covid_data_delta'
+AS
+SELECT iso_code,location,continent,date,new_deaths_per_million,people_fully_vaccinated,population FROM covid_data
+
+DELETE FROM covid.covid_data_detla where population is null or people_fully_vaccinated is null or new_deaths_per_million is null or location is null
+
+delete from covid.covid_data_detla;
+Select count(*) from covid.covid_data_detla;
+
+select * from covid_data_detla version as of 0;
+
+RESTORE TABLE covid_data_detla TO VERSION AS OF 0
+
+update covid_data_detla set population = population * 1.2 where continent = 'Asia';	
+Delete from covid_data_detla  where continent = 'Europe';
+
+MERGE INTO covid_data_detla source
+  USING covid_data_detla TIMESTAMP AS OF "2022-02-19 16:45:00" target
+  ON source.location = target.location and source.date = target.date
+  WHEN MATCHED THEN UPDATE SET *
+  WHEN NOT MATCHED
+  THEN INSERT *

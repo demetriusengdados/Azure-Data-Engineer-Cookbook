@@ -1,0 +1,35 @@
+## Load csv to dataframe as specified in "Processing data using Sspark pools and lake database" recipe
+
+
+df.createOrReplaceTempView("v1")
+
+%%sql
+Describe v1;
+
+%%sql
+Create database sparksqldb;
+Create or replace table sparksqldb.covid
+USING Delta 
+AS 
+Select date, continent,location, CAST(new_cases as int) as new_cases, 
+CAST(new_deaths as int) as new_deaths from v1 
+
+
+%%sql
+Describe table sparksqldb.covid;
+
+
+%%sql
+Delete from sparksqldb.covid where continent is NULL
+
+
+%%sql 
+DESCRIBE DETAIL sparksqldb.covid  
+
+
+df2 =  spark.read.format("delta").option("versionAsOf", 0).load("/synapse/workspaces/packtadesynapse/warehouse/sparksqldb.db/covid")
+df2.createOrReplaceTempView("old_Data")
+
+%%sql
+Select SELECT * from FROM old_Data where WHERE continent is IS NULL
+

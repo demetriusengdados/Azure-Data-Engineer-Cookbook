@@ -1,0 +1,21 @@
+%%spark
+val date = java.time.LocalDate.now
+val transaction_today = spark.read.format("csv").option("header", "true").option("inferSchema", "true").load("/transaction-data/TransDtls-" + date +".csv")
+display(transaction_today)  
+
+%%spark
+transaction_today.createOrReplaceTempView("transaction_today")
+
+%%sql
+CREATE DATABASE IF NOT EXISTS DataLoad;
+
+CREATE TABLE IF NOT EXISTS DataLoad.transaction_data(transaction_id int, order_id int, Order_dt Date,customer_id varchar(100),product_id varchar(100),quantity int,cost int)
+USING DELTA
+
+%%sql
+Merge into DataLoad.transaction_data source
+Using transaction_today target on source.transaction_id = target.transaction_id
+WHEN MATCHED THEN UPDATE SET *
+WHEN NOT MATCHED AND (target.transaction_id is not null or target.order_id is not null or target.customer_id is not null)
+THEN INSERT *
+
