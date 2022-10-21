@@ -1,0 +1,1 @@
+Remove-AzSqlDatabaseFailoverGroup -ServerName azadesqlsecondary -FailoverGroupName adefg -ResourceGroupName packtadesql

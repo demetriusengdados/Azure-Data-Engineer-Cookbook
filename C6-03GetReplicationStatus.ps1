@@ -1,0 +1,1 @@
+Get-AzSqlDatabaseReplicationLink -DatabaseName azadesqldb -PartnerResourceGroupName packtadesql -PartnerServerName azadesqlsecondary -ServerName azadesqlserver -ResourceGroupName packtadesql

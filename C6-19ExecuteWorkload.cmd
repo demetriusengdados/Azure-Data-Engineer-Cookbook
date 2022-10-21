@@ -1,0 +1,1 @@
+sqlcmd -S azadesqlserver.database.windows.net -d adeawlt -U sqladmin -P Sql@Server@1234 -i "C:\ADECookbook\Chapter06\workload.sql" > "C:\ADECookbook\Chapter06\workload_output.txt"

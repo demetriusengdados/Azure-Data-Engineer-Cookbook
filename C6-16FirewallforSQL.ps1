@@ -1,0 +1,1 @@
+New-AzSqlServerFirewallRule -FirewallRuleName "AllowAllAzureIPs" -StartIpAddress "0.0.0.0" -EndIpAddress "0.0.0.0" -ServerName azadesqlserver -ResourceGroupName packtadesql
