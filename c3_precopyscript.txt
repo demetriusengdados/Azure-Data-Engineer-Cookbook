@@ -1,0 +1,2 @@
+if not exists ( Select * from sys.objects where name like 'orderdtls')
+Create table dbo.orderdtls(order_dt varchar(30),product varchar(100),cost int, quantity int, location varchar(100))
