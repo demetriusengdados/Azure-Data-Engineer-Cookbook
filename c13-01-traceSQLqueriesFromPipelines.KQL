@@ -1,0 +1,21 @@
+let SQLQueries = 
+SynapseSqlPoolExecRequests 
+| where  StartTime between (datetime(2000-05-20)..TimeGenerated)
+| where Label !="health_checker" and Label contains "ADF"
+| where Status contains "Running" 
+| where _ResourceId endswith DatabaseName  
+| extend duration_sec = datetime_diff("second", TimeGenerated,StartTime) 
+| summarize Query_duration_sec = max(duration_sec),StartTime = min(StartTime), Command = any(Command),Label = any(Label),ResourceClass = any(ResourceClass),QueryPlan = any(ExplainOutput),Status = any(Status),Source = any(SourceSystem) by RequestId;
+
+let PipelineActivity =
+SynapseIntegrationActivityRuns
+| extend Label = strcat("ADF Activity ID:"," ",ActivityRunId),activity_duration_sec = datetime_diff("second", TimeGenerated,Start)
+| summarize activity_duration_sec=max(activity_duration_sec), PipelineName = any(PipelineName) , ActivityName = any(ActivityName),PipelineRunId = any(PipelineRunId),ActivityType=any(ActivityType),EffectiveIntegrationRuntime = any(EffectiveIntegrationRuntime) by Label;
+
+SQLQueries
+| join kind = leftouter PipelineActivity on Label
+| project RequestId,StartTime,Query_duration_sec,Command,PipelineName,ActivityName,Label,PipelineRunId
+
+
+
+
