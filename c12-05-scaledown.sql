@@ -1,0 +1,2 @@
+ALTER DATABASE packtadesqlpool
+MODIFY (SERVICE_OBJECTIVE = 'DW100c');
